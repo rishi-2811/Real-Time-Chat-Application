@@ -8,6 +8,26 @@ const User=require('./user')
 const jwt=require('jsonwebtoken')
 const cookieParser=require('cookie-parser')
 const auth=require('./auth')
+const io=require('socket.io')(7000,{
+    cors:'http://127.0.0.1:5500/chat.html'
+})
+const users={}
+
+io.on('connection',socket=>{
+    console.log('new-user')
+    socket.on('new-user',name=>{
+        users[socket.id]=name
+        socket.broadcast.emit('newuser-message',name)
+    })
+    socket.on('send-message',message=>{
+        socket.broadcast.emit('chat-message',{message:message,name:users[socket.id]})
+    })
+})
+
+
+
+
+
 dotenv.config()
 const saltRounds=10
 const seckey=process.env.key
