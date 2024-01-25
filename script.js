@@ -1,30 +1,34 @@
-const socket=io('http://localhost:7000')
-const messageContainer=document.getElementById('message-container')
-const messageForm=document.getElementById('send-container')
-const messageInput=document.getElementById('message-input')
 
-const name=prompt('Enter your name?')
-appendMessage('You joined')
-socket.emit('new-user',name)
+    const socket = io('http://localhost:7000');
+    const messageContainer = document.getElementById('message-container');
+    const messageForm = document.getElementById('send-container');
+    const messageInput = document.getElementById('message-input');
 
-socket.on('newuser-message',name=>{
-    appendMessage(`${name} joined`)
-})
+    const name = prompt('Enter your name?');
+    appendMessage('You joined');
+    socket.emit('new-user', name);
 
-messageForm.addEventListener('submit',e=>{
-    e.preventDefault()
-    const message=messageInput.value
-    appendMessage(`You: ${message}`)
-    socket.emit('send-message',message)
-    messageInput.value=''
-})
+    socket.on('newuser-message', name => {
+        appendMessage(`${name} joined`,'left');
+    });
 
-function appendMessage(message){
-    const messageElement=document.createElement('div')
-    messageElement.innerText=message
-    messageContainer.append(messageElement)
-}  
+    messageForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const message = messageInput.value;
+        appendMessage(message,'right');
+        socket.emit('send-message', message);
+        messageInput.value = '';
+    });
 
-socket.on('chat-message',data=>{
-    appendMessage(`${data.name}: ${data.message}`)
-})
+    function appendMessage(message,position) {
+        const messageElement = document.createElement('div');
+        messageElement.innerText = message;
+        messageElement.classList.add('message');
+        messageElement.classList.add(position);
+        messageContainer.append(messageElement);
+    }
+
+    socket.on('chat-message', data => {
+        appendMessage(`${data.name}: ${data.message}`,'left');
+    });
+
